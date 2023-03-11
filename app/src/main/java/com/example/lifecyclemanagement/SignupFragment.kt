@@ -2,6 +2,7 @@ package com.example.lifecyclemanagement
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.lifecyclemanagement.databinding.FragmentSignupBinding
@@ -57,14 +59,24 @@ class SignupFragment : Fragment() {
         }
 
         binding.photoButton.setOnClickListener {
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    cameraActivity.launch(intent)
+            if (context?.checkSelfPermission("android.permission.CAMERA") == PackageManager.PERMISSION_GRANTED) {
+                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        cameraActivity.launch(intent)
+                    }
+                } catch (e: java.lang.Exception) {
+                    println(e.message)
                 }
-            } catch (e: java.lang.Exception) {
-                println(e.message)
+            } else {
+                requestPermissions(arrayOf("android.permission.CAMERA"), 1)
+                Toast.makeText(
+                    context,
+                    "Please enable camera permission to take profile picture and press take profile picture again",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
         }
 
         binding.submitButton.setOnClickListener {
